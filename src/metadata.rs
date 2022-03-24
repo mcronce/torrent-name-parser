@@ -2,9 +2,9 @@ use crate::error::Error;
 use crate::pattern;
 use crate::pattern::Pattern;
 use bitflags::bitflags;
+use compact_str::CompactStr;
 use regex::Captures;
 use result::ResultOptionExt;
-use smartstring::alias::String;
 use std::borrow::Cow;
 use std::cmp::{max, min};
 use std::str::FromStr;
@@ -48,7 +48,7 @@ pub struct MetadataRef<'name> {
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct Metadata {
-    title: String,
+    title: CompactStr,
     season: Option<u16>,
     episode: Option<u16>,
     year: Option<u16>,
@@ -56,9 +56,9 @@ pub struct Metadata {
     quality: Option<Quality>,
     codec: Option<Codec>,
     audio: Option<Audio>,
-    group: Option<String>,
+    group: Option<CompactStr>,
     flags: Flags,
-    imdb: Option<String>,
+    imdb: Option<CompactStr>,
 }
 
 fn check_pattern_and_extract<'a>(
@@ -374,9 +374,9 @@ impl<'name> MetadataRef<'name> {
             quality: self.quality,
             codec: self.codec,
             audio: self.audio,
-            group: self.group.map(String::from),
+            group: self.group.map(CompactStr::new),
             flags: self.flags,
-            imdb: self.imdb.map(String::from),
+            imdb: self.imdb.map(CompactStr::new),
         }
     }
 

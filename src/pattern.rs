@@ -52,7 +52,7 @@ impl Pattern {
                     }
 
                     let prev_char = text[prev..].chars().next().unwrap();
-                    if prev_char.is_digit(10) {
+                    if prev_char.is_ascii_digit() {
                         return false;
                     }
                 }
@@ -65,7 +65,7 @@ impl Pattern {
                         next += 1;
                     }
                     let next_char = text[next..].chars().next().unwrap();
-                    if next_char.is_digit(10) {
+                    if next_char.is_ascii_digit() {
                         return false;
                     }
                 }

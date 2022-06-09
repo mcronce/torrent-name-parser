@@ -2,10 +2,10 @@ use crate::error::Error;
 use crate::pattern;
 use crate::pattern::Pattern;
 use bitflags::bitflags;
+use cervine::Cow;
 use compact_str::CompactString;
 use regex::Captures;
 use result::ResultOptionExt;
-use std::borrow::Cow;
 use std::cmp::{max, min};
 use std::str::FromStr;
 
@@ -33,7 +33,7 @@ bitflags! {
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct MetadataRef<'name> {
-    title: Cow<'name, str>,
+    title: Cow<'name, CompactString, str>,
     season: Option<u16>,
     episode: Option<u16>,
     year: Option<u16>,
@@ -307,21 +307,21 @@ impl<'name> MetadataRef<'name> {
         }
         title = title.trim_start_matches(" -");
         title = title.trim_end_matches(" -");
-        let mut title = match !title.contains(' ') && title.contains('.') {
-            true => Cow::Owned(title.replace('.', " ")),
+        let mut title: Cow<'name, CompactString, str> = match !title.contains(' ') && title.contains('.') {
+            true => Cow::Owned(title.replace('.', " ").into()),
             false => Cow::Borrowed(title),
         };
         if title.contains('_') {
-            title = Cow::Owned(title.replace('_', " "));
+            title = Cow::Owned(title.replace('_', " ").into());
         }
         if title.contains('(') {
-            title = Cow::Owned(title.replacen('(', "", 1));
+            title = Cow::Owned(title.replacen('(', "", 1).into());
         }
         if title.contains("- ") {
-            title = Cow::Owned(title.replacen("- ", "", 1));
+            title = Cow::Owned(title.replacen("- ", "", 1).into());
         }
         title = match title {
-            Cow::Owned(s) => Cow::Owned(s.trim().to_string()),
+            Cow::Owned(s) => Cow::Owned(s.trim().into()),
             Cow::Borrowed(s) => Cow::Borrowed(s.trim()),
         };
 
@@ -366,7 +366,7 @@ impl<'name> MetadataRef<'name> {
     #[inline]
     pub fn to_owned(self) -> Metadata {
         Metadata {
-            title: self.title.into(),
+            title: self.title.as_ref().into(),
             season: self.season,
             episode: self.episode,
             year: self.year,

@@ -189,10 +189,10 @@ impl<'name> MetadataRef<'name> {
             &mut title_start,
             &mut title_end,
             |caps| {
-                caps.name("short")
-                    .or_else(|| caps.name("long"))
-                    .or_else(|| caps.name("dash"))
-                    .map(|m| m.as_str())
+                caps.get(1)
+                    .or_else(|| caps.get(3))
+                    .or_else(|| caps.get(4))
+                    .map(|s| s.as_str())
             },
         );
 
@@ -202,11 +202,11 @@ impl<'name> MetadataRef<'name> {
             &mut title_start,
             &mut title_end,
             |caps| {
-                caps.name("short")
-                    .or_else(|| caps.name("long"))
-                    .or_else(|| caps.name("cross"))
-                    .or_else(|| caps.name("dash"))
-                    .map(|m| m.as_str())
+                caps.get(1)
+                    .or_else(|| caps.get(3))
+                    .or_else(|| caps.get(4))
+                    .or_else(|| caps.get(5))
+                    .map(|s| s.as_str())
             },
         );
 
@@ -215,7 +215,7 @@ impl<'name> MetadataRef<'name> {
             name,
             &mut title_start,
             &mut title_end,
-            |caps: Captures<'_>| caps.name("year").map(|m| m.as_str()),
+            |caps| caps.get(0).map(|s| s.as_str()),
         );
 
         let resolution = check_pattern_and_extract(

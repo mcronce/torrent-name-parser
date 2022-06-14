@@ -89,10 +89,14 @@ impl Pattern {
 
 lazy_static! {
     pub static ref SEASON: Pattern = regex!(
-        r"[Ss]?(?P<short>\d+) ?[Eex]|(Season|SEASON)(?:[^\d]|$)(?P<long>\d+)|S(?P<dash>\d+) - \d+"
+        //     short                                  long   dash
+        //      _1_          ______2______             _3_    _4_
+        r"[Ss]?(\d+) ?[Eex]|(Season|SEASON)(?:[^\d]|$)(\d+)|S(\d+) - \d+"
     );
     pub static ref EPISODE: Pattern = regex!(
-        r"[Ee](?P<short>\d+)(?:[^\d]|$)|(Episode|EPISODE)(?:[^\d]|$)(?P<long>\d+)|\d+x(?P<cross>\d+)|S\d+ - (?P<dash>\d+)"
+        //    short                                        long      cross        dash
+        //     _1_              _______2_______             _3_       _4_          _5_
+        r"[Ee](\d+)(?:[^\d]|$)|(Episode|EPISODE)(?:[^\d]|$)(\d+)|\d+x(\d+)|S\d+ - (\d+)"
     );
     pub static ref RESOLUTION: Pattern = regex!(r"((\d{3,4}p))[^M]");
     pub static ref QUALITY: Pattern = regex!(
@@ -115,6 +119,6 @@ lazy_static! {
     pub static ref LANGUAGE: Pattern = regex!(r"rus\.eng|US");
     pub static ref GARBAGE: Pattern = regex!(r"1400Mb|3rd Nov|((Rip)) ");
     pub static ref IMDB: Pattern = regex!(r"tt\d{7}");
-    pub static ref YEAR: Pattern = regex!(r"(?P<year>(1[89]|20)\d\d)", false, true, true);
+    pub static ref YEAR: Pattern = regex!(r"(?:1[89]|20)\d\d", false, true, true);
     pub static ref WEBSITE: Pattern = regex!(r"^(\[ ?([^\]]+?) ?\]) ?", true, false, false);
 }

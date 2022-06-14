@@ -57,6 +57,9 @@ static RESOLUTIONS: phf::Map<&'static str, Resolution> = phf::phf_map! {
 impl FromStr for Resolution {
     type Err = Error;
     fn from_str(input: &str) -> Result<Self, Self::Err> {
-        RESOLUTIONS.get(input).cloned().ok_or_else(|| Error::InvalidResolution(input.into()))
+        RESOLUTIONS
+            .get(input)
+            .cloned()
+            .ok_or_else(|| Error::InvalidResolution(input.into()))
     }
 }

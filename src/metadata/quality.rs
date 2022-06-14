@@ -60,6 +60,9 @@ static QUALITIES: phf::Map<&'static str, Quality> = phf::phf_map! {
 impl FromStr for Quality {
     type Err = Error;
     fn from_str(input: &str) -> Result<Self, Self::Err> {
-        QUALITIES.get(input).cloned().ok_or_else(|| Error::InvalidQuality(input.into()))
+        QUALITIES
+            .get(input)
+            .cloned()
+            .ok_or_else(|| Error::InvalidQuality(input.into()))
     }
 }

@@ -307,10 +307,11 @@ impl<'name> MetadataRef<'name> {
         }
         title = title.trim_start_matches(" -");
         title = title.trim_end_matches(" -");
-        let mut title: Cow<'name, CompactString, str> = match !title.contains(' ') && title.contains('.') {
-            true => Cow::Owned(title.replace('.', " ").into()),
-            false => Cow::Borrowed(title),
-        };
+        let mut title: Cow<'name, CompactString, str> =
+            match !title.contains(' ') && title.contains('.') {
+                true => Cow::Owned(title.replace('.', " ").into()),
+                false => Cow::Borrowed(title),
+            };
         if title.contains('_') {
             title = Cow::Owned(title.replace('_', " ").into());
         }

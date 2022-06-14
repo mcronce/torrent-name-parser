@@ -13,22 +13,53 @@ pub enum Quality {
     Web,
 }
 
+static QUALITIES: phf::Map<&'static str, Quality> = phf::phf_map! {
+    "HDTV" => Quality::HDTV,
+    "PPV.HDTV" => Quality::HDTV,
+    "PDTV" => Quality::HDTV,
+    "PPV.PDTV" => Quality::HDTV,
+    "hdtv" => Quality::HDTV,
+    "CAM" => Quality::Cam,
+    "HDCAM" => Quality::Cam,
+    "CamRip" => Quality::Cam,
+    "BrRip" => Quality::BluRay,
+    "BRRip" => Quality::BluRay,
+    "BluRay" => Quality::BluRay,
+    "Bluray" => Quality::BluRay,
+    "bluRay" => Quality::BluRay,
+    "bluray" => Quality::BluRay,
+    "TS" => Quality::TS,
+    "WEB" => Quality::Web,
+    "WEB-" => Quality::Web,
+    "WEB-DL" => Quality::Web,
+    "WEBDL" => Quality::Web,
+    "PPV WEB" => Quality::Web,
+    "PPV WEB-" => Quality::Web,
+    "PPV WEB-DL" => Quality::Web,
+    "PPV WEBDL" => Quality::Web,
+    "WEB DVDRip" => Quality::Web,
+    "WEB- DVDRip" => Quality::Web,
+    "WEB-DL DVDRip" => Quality::Web,
+    "WEBDL DVDRip" => Quality::Web,
+    "PPV WEB DVDRip" => Quality::Web,
+    "PPV WEB- DVDRip" => Quality::Web,
+    "PPV WEB-DL DVDRip" => Quality::Web,
+    "PPV WEBDL DVDRip" => Quality::Web,
+    "WEBRip" => Quality::Web,
+    "WEBrip" => Quality::Web,
+    "WBBRip" => Quality::Web,
+    "WBBrip" => Quality::Web,
+    "HDRip" => Quality::HD,
+    "HdRip" => Quality::HD,
+    "DVDRip" => Quality::DVD,
+    "DVDRiP" => Quality::DVD,
+    "DVDRIP" => Quality::DVD,
+    "DvDScr" => Quality::DVD
+};
+
 impl FromStr for Quality {
     type Err = Error;
     fn from_str(input: &str) -> Result<Self, Self::Err> {
-        match input {
-            "HDTV" | "PPV.HDTV" | "PDTV" | "PPV.PDTV" | "hdtv" => Ok(Self::HDTV),
-            "CAM" | "HDCAM" | "CamRip" => Ok(Self::Cam),
-            "BrRip" | "BRRip" | "BluRay" | "Bluray" | "bluRay" | "bluray" => Ok(Self::BluRay),
-            "TS" => Ok(Self::TS),
-            "WEB" | "WEB-" | "WEB-DL" | "WEBDL" | "PPV WEB" | "PPV WEB-" | "PPV WEB-DL"
-            | "PPV WEBDL" => Ok(Self::Web),
-            "WEB DVDRip" | "WEB- DVDRip" | "WEB-DL DVDRip" | "WEBDL DVDRip" | "PPV WEB DVDRip"
-            | "PPV WEB- DVDRip" | "PPV WEB-DL DVDRip" | "PPV WEBDL DVDRip" => Ok(Self::Web),
-            "WEBRip" | "WEBrip" | "WBBRip" | "WBBrip" => Ok(Self::Web),
-            "HDRip" | "HdRip" => Ok(Self::HD),
-            "DVDRip" | "DVDRiP" | "DVDRIP" | "DvDScr" => Ok(Self::DVD),
-            s => Err(Error::InvalidQuality(s.into())),
-        }
+        QUALITIES.get(input).cloned().ok_or_else(|| Error::InvalidQuality(input.into()))
     }
 }

@@ -343,6 +343,13 @@ fn names() {
     assert_eq!(m.imdb_tag(), Some("tt1961324"));
     assert_eq!(m.title(), "Pokémon the Movie Black - Victini and Reshiram");
     assert_eq!(m.year(), Some(2011));
+
+    let m = Metadata::from("1899 S01E08 XviD-AFG").unwrap();
+    assert_eq!(m.season(), Some(1));
+    assert_eq!(m.episode(), Some(8));
+    assert_eq!(m.title(), "1899");
+    assert_eq!(m.year(), None);
+    assert_eq!(m.codec(), Some(Codec::Xvid));
 }
 
 #[test]

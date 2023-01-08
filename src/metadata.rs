@@ -210,7 +210,7 @@ impl<'name> MetadataRef<'name> {
             },
         );
 
-        let year = check_pattern_and_extract(
+        let mut year = check_pattern_and_extract(
             &pattern::YEAR,
             name,
             &mut title_start,
@@ -276,58 +276,62 @@ impl<'name> MetadataRef<'name> {
         let garbage = check_pattern(&pattern::GARBAGE, name, &mut title_start, &mut title_end);
         let website = check_pattern(&pattern::WEBSITE, name, &mut title_start, &mut title_end);
 
+        let mut title: Cow<'name, CompactString, str>;
         if title_start >= title_end {
-            return Err(Error::Match(
-                name.to_owned(),
-                vec![
-                    ("season", season.map(std::string::String::from)),
-                    ("episode", episode.map(std::string::String::from)),
-                    ("year", year.map(std::string::String::from)),
-                    ("resolution", resolution.map(|s| s.into())),
-                    ("quality", quality.map(|s| s.into())),
-                    ("codec", codec.map(|s| s.into())),
-                    ("audio", audio.map(|s| s.into())),
-                    ("group", group.map(|s| s.into())),
-                    ("imdb", imdb.map(|s| s.into())),
-                    ("extended", capture_to_string(extended)),
-                    ("proper", capture_to_string(proper)),
-                    ("repack", capture_to_string(repack)),
-                    ("widescreen", capture_to_string(widescreen)),
-                    ("unrated", capture_to_string(unrated)),
-                    ("three_d", capture_to_string(three_d)),
-                    ("region", capture_to_string(region)),
-                    ("container", capture_to_string(container)),
-                    ("language", capture_to_string(language)),
-                    ("garbage", capture_to_string(garbage)),
-                    ("website", capture_to_string(website)),
-                ]
-            ));
-        }
-
-        let mut title = &name[title_start..title_end];
-        if let Some(pos) = title.find('(') {
-            title = title.split_at(pos).0;
-        }
-        title = title.trim_start_matches(" -");
-        title = title.trim_end_matches(" -");
-        let mut title: Cow<'name, CompactString, str> =
-            match !title.contains(' ') && title.contains('.') {
-                true => Cow::Owned(title.replace('.', " ").into()),
-                false => Cow::Borrowed(title),
+            if let Some(year) = year.take() {
+                title = Cow::Borrowed(year);
+            } else {
+                return Err(Error::Match(
+                    name.to_owned(),
+                    vec![
+                        ("season", season.map(std::string::String::from)),
+                        ("episode", episode.map(std::string::String::from)),
+                        ("year", year.map(std::string::String::from)),
+                        ("resolution", resolution.map(|s| s.into())),
+                        ("quality", quality.map(|s| s.into())),
+                        ("codec", codec.map(|s| s.into())),
+                        ("audio", audio.map(|s| s.into())),
+                        ("group", group.map(|s| s.into())),
+                        ("imdb", imdb.map(|s| s.into())),
+                        ("extended", capture_to_string(extended)),
+                        ("proper", capture_to_string(proper)),
+                        ("repack", capture_to_string(repack)),
+                        ("widescreen", capture_to_string(widescreen)),
+                        ("unrated", capture_to_string(unrated)),
+                        ("three_d", capture_to_string(three_d)),
+                        ("region", capture_to_string(region)),
+                        ("container", capture_to_string(container)),
+                        ("language", capture_to_string(language)),
+                        ("garbage", capture_to_string(garbage)),
+                        ("website", capture_to_string(website)),
+                    ]
+                ));
+            }
+        } else {
+            let mut title_tmp = &name[title_start..title_end];
+            if let Some(pos) = title_tmp.find('(') {
+                title_tmp = title_tmp.split_at(pos).0;
+            }
+            title_tmp = title_tmp.trim_start_matches(" -");
+            title_tmp = title_tmp.trim_end_matches(" -");
+            title = match !title_tmp.contains(' ') && title_tmp.contains('.') {
+                true => Cow::Owned(title_tmp.replace('.', " ").into()),
+                false => Cow::Borrowed(title_tmp),
             };
-        if title.contains('_') {
-            title = Cow::Owned(title.replace('_', " ").into());
+            if title.contains('_') {
+                title = Cow::Owned(title.replace('_', " ").into());
+            }
+            if title.contains('(') {
+                title = Cow::Owned(title.replacen('(', "", 1).into());
+            }
+            if title.contains("- ") {
+                title = Cow::Owned(title.replacen("- ", "", 1).into());
+            }
+            title = match title {
+                Cow::Owned(s) => Cow::Owned(s.trim().into()),
+                Cow::Borrowed(s) => Cow::Borrowed(s.trim()),
+            };
         }
-        if title.contains('(') {
-            title = Cow::Owned(title.replacen('(', "", 1).into());
-        }
-        if title.contains("- ") {
-            title = Cow::Owned(title.replacen("- ", "", 1).into());
-        }
-        title = match title {
-            Cow::Owned(s) => Cow::Owned(s.trim().into()),
-            Cow::Borrowed(s) => Cow::Borrowed(s.trim()),
-        };
 
         let mut flags = Flags::empty();
         if extended.is_some() {

@@ -1,7 +1,7 @@
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
-    #[error("Couldn't find a title; matches: {0:?}")]
-    Match(Vec<(&'static str, Option<String>)>),
+    #[error("Couldn't find a title in \"{0}\"; matches: {1:?}")]
+    Match(String, Vec<(&'static str, Option<String>)>),
     #[error("Invalid resolution: {0}")]
     InvalidResolution(String),
     #[error("Invalid quality: {0}")]

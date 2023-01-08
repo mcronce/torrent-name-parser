@@ -277,28 +277,31 @@ impl<'name> MetadataRef<'name> {
         let website = check_pattern(&pattern::WEBSITE, name, &mut title_start, &mut title_end);
 
         if title_start >= title_end {
-            return Err(Error::Match(vec![
-                ("season", season.map(std::string::String::from)),
-                ("episode", episode.map(std::string::String::from)),
-                ("year", year.map(std::string::String::from)),
-                ("resolution", resolution.map(|s| s.into())),
-                ("quality", quality.map(|s| s.into())),
-                ("codec", codec.map(|s| s.into())),
-                ("audio", audio.map(|s| s.into())),
-                ("group", group.map(|s| s.into())),
-                ("imdb", imdb.map(|s| s.into())),
-                ("extended", capture_to_string(extended)),
-                ("proper", capture_to_string(proper)),
-                ("repack", capture_to_string(repack)),
-                ("widescreen", capture_to_string(widescreen)),
-                ("unrated", capture_to_string(unrated)),
-                ("three_d", capture_to_string(three_d)),
-                ("region", capture_to_string(region)),
-                ("container", capture_to_string(container)),
-                ("language", capture_to_string(language)),
-                ("garbage", capture_to_string(garbage)),
-                ("website", capture_to_string(website)),
-            ]));
+            return Err(Error::Match(
+                name.to_owned(),
+                vec![
+                    ("season", season.map(std::string::String::from)),
+                    ("episode", episode.map(std::string::String::from)),
+                    ("year", year.map(std::string::String::from)),
+                    ("resolution", resolution.map(|s| s.into())),
+                    ("quality", quality.map(|s| s.into())),
+                    ("codec", codec.map(|s| s.into())),
+                    ("audio", audio.map(|s| s.into())),
+                    ("group", group.map(|s| s.into())),
+                    ("imdb", imdb.map(|s| s.into())),
+                    ("extended", capture_to_string(extended)),
+                    ("proper", capture_to_string(proper)),
+                    ("repack", capture_to_string(repack)),
+                    ("widescreen", capture_to_string(widescreen)),
+                    ("unrated", capture_to_string(unrated)),
+                    ("three_d", capture_to_string(three_d)),
+                    ("region", capture_to_string(region)),
+                    ("container", capture_to_string(container)),
+                    ("language", capture_to_string(language)),
+                    ("garbage", capture_to_string(garbage)),
+                    ("website", capture_to_string(website)),
+                ]
+            ));
         }
 
         let mut title = &name[title_start..title_end];

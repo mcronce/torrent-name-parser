@@ -350,6 +350,13 @@ fn names() {
     assert_eq!(m.title(), "1899");
     assert_eq!(m.year(), None);
     assert_eq!(m.codec(), Some(Codec::Xvid));
+
+    let m = Metadata::from("Everwood.S02E07.1080p.HEVC.x265-MeGusta").unwrap();
+    assert_eq!(m.title(), "Everwood");
+    assert_eq!(m.season(), Some(2));
+    assert_eq!(m.episode(), Some(7));
+    assert_eq!(m.resolution(), Some(Resolution::R1080p));
+    assert_eq!(m.codec(), Some(Codec::X265));
 }
 
 #[test]

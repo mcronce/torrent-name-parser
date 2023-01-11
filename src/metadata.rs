@@ -43,7 +43,7 @@ pub struct MetadataRef<'name> {
     audio: Option<Audio>,
     group: Option<&'name str>,
     flags: Flags,
-    imdb: Option<&'name str>,
+    imdb: Option<u32>,
 }
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
@@ -58,7 +58,7 @@ pub struct Metadata {
     audio: Option<Audio>,
     group: Option<CompactString>,
     flags: Flags,
-    imdb: Option<CompactString>,
+    imdb: Option<u32>,
 }
 
 fn check_pattern_and_extract<'a>(
@@ -145,8 +145,8 @@ impl Metadata {
         self.group.as_deref()
     }
     #[inline]
-    pub fn imdb_tag(&self) -> Option<&str> {
-        self.imdb.as_deref()
+    pub fn imdb_tag(&self) -> Option<u32> {
+        self.imdb
     }
     #[inline]
     pub fn extended(&self) -> bool {
@@ -259,7 +259,7 @@ impl<'name> MetadataRef<'name> {
             &mut title_start,
             &mut title_end,
             |caps| caps.get(0).map(|m| m.as_str()),
-        );
+        ).and_then(|m| m.strip_prefix("tt")).and_then(|m| m.parse().ok());
 
         let extended = check_pattern(&pattern::EXTENDED, name, &mut title_start, &mut title_end);
         let hardcoded = check_pattern(&pattern::HARDCODED, name, &mut title_start, &mut title_end);
@@ -292,7 +292,7 @@ impl<'name> MetadataRef<'name> {
                         ("codec", codec.map(|s| s.into())),
                         ("audio", audio.map(|s| s.into())),
                         ("group", group.map(|s| s.into())),
-                        ("imdb", imdb.map(|s| s.into())),
+                        ("imdb", imdb.map(|s: u32| s.to_string())),
                         ("extended", capture_to_string(extended)),
                         ("proper", capture_to_string(proper)),
                         ("repack", capture_to_string(repack)),
@@ -384,7 +384,7 @@ impl<'name> MetadataRef<'name> {
             audio: self.audio,
             group: self.group.map(CompactString::new),
             flags: self.flags,
-            imdb: self.imdb.map(CompactString::new),
+            imdb: self.imdb,
         }
     }
 
@@ -425,7 +425,7 @@ impl<'name> MetadataRef<'name> {
         self.group
     }
     #[inline]
-    pub fn imdb_tag(&self) -> Option<&str> {
+    pub fn imdb_tag(&self) -> Option<u32> {
         self.imdb
     }
     #[inline]

@@ -1,3 +1,5 @@
+use core::num::NonZeroU32;
+
 use super::*;
 
 #[test]
@@ -320,14 +322,14 @@ fn names() {
     .unwrap();
     assert_eq!(m.season(), None);
     assert_eq!(m.episode(), None);
-    assert_eq!(m.imdb_tag(), Some(6193408));
+    assert_eq!(m.imdb_tag(), NonZeroU32::new(6193408));
     assert_eq!(m.year(), Some(2019));
     assert_eq!(m.title(), "A Shaun the Sheep Movie Farmageddon");
 
     let m = Metadata::from("Yes Day (2021) [h265 WEBDL-1080p] [tt8521876]").unwrap();
     assert_eq!(m.season(), None);
     assert_eq!(m.episode(), None);
-    assert_eq!(m.imdb_tag(), Some(8521876));
+    assert_eq!(m.imdb_tag(), NonZeroU32::new(8521876));
     assert_eq!(m.year(), Some(2021));
     assert_eq!(m.title(), "Yes Day");
 
@@ -340,7 +342,7 @@ fn names() {
     .unwrap();
     assert_eq!(m.season(), None);
     assert_eq!(m.episode(), None);
-    assert_eq!(m.imdb_tag(), Some(1961324));
+    assert_eq!(m.imdb_tag(), NonZeroU32::new(1961324));
     assert_eq!(m.title(), "Pokémon the Movie Black - Victini and Reshiram");
     assert_eq!(m.year(), Some(2011));
 

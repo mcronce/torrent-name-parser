@@ -1,3 +1,5 @@
+use core::num::NonZeroU32;
+
 use crate::error::Error;
 use crate::pattern;
 use crate::pattern::Pattern;
@@ -43,7 +45,7 @@ pub struct MetadataRef<'name> {
     audio: Option<Audio>,
     group: Option<&'name str>,
     flags: Flags,
-    imdb: Option<u32>,
+    imdb: Option<NonZeroU32>,
 }
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
@@ -58,7 +60,7 @@ pub struct Metadata {
     audio: Option<Audio>,
     group: Option<CompactString>,
     flags: Flags,
-    imdb: Option<u32>,
+    imdb: Option<NonZeroU32>,
 }
 
 fn check_pattern_and_extract<'a>(
@@ -145,7 +147,7 @@ impl Metadata {
         self.group.as_deref()
     }
     #[inline]
-    pub fn imdb_tag(&self) -> Option<u32> {
+    pub fn imdb_tag(&self) -> Option<NonZeroU32> {
         self.imdb
     }
     #[inline]
@@ -292,7 +294,7 @@ impl<'name> MetadataRef<'name> {
                         ("codec", codec.map(|s| s.into())),
                         ("audio", audio.map(|s| s.into())),
                         ("group", group.map(|s| s.into())),
-                        ("imdb", imdb.map(|s: u32| s.to_string())),
+                        ("imdb", imdb.map(|s: NonZeroU32| s.to_string())),
                         ("extended", capture_to_string(extended)),
                         ("proper", capture_to_string(proper)),
                         ("repack", capture_to_string(repack)),
@@ -425,7 +427,7 @@ impl<'name> MetadataRef<'name> {
         self.group
     }
     #[inline]
-    pub fn imdb_tag(&self) -> Option<u32> {
+    pub fn imdb_tag(&self) -> Option<NonZeroU32> {
         self.imdb
     }
     #[inline]

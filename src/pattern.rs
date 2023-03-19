@@ -1,5 +1,4 @@
 use regex::{Captures, Regex};
-use std::collections::HashMap;
 use std::iter::Iterator;
 
 #[derive(Debug)]
@@ -11,20 +10,17 @@ pub struct Pattern {
 }
 
 macro_rules! regex {
-    ($mapping:expr, $name:expr, $pattern:expr, $before_title:expr, $capture_last:expr, $no_numbers_surrounding:expr) => {
-        $mapping.insert(
-            $name,
-            Pattern::new(
-                Regex::new($pattern).unwrap(),
-                $before_title,
-                $capture_last,
-                $no_numbers_surrounding,
-            ),
+    ($pattern:expr, $before_title:expr, $capture_last:expr, $no_numbers_surrounding:expr) => {
+        Pattern::new(
+            Regex::new($pattern).unwrap(),
+            $before_title,
+            $capture_last,
+            $no_numbers_surrounding,
         )
     };
 
-    ($mapping:expr, $name:expr, $pattern:expr) => {
-        regex!($mapping, $name, $pattern, false, false, false);
+    ($pattern:expr) => {
+        regex!($pattern, false, false, false)
     };
 }
 
@@ -91,73 +87,41 @@ impl Pattern {
     }
 }
 
-pub fn all_patterns() -> impl Iterator<Item = (&'static &'static str, &'static Pattern)> {
-    PATTERNS.iter()
-}
-
-const ALL_RAW_PATTERNS: [(&str, &str); 19] = [
-    (
-        "season",
-        r"[Ss]?(?P<short>\d+) ?[Eex]|(Season|SEASON)(?:[^\d]|$)(?P<long>\d+)|S(?P<dash>\d+) - \d+",
-    ),
-    (
-        "episode",
-        r"[Ee](?P<short>\d+)(?:[^\d]|$)|(Episode|EPISODE)(?:[^\d]|$)(?P<long>\d+)|\d+x(?P<cross>\d+)|S\d+ - (?P<dash>\d+)",
-    ),
-    ("resolution", r"((\d{3,4}p))[^M]"),
-    (
-        "quality",
-        r"(?:PPV\.)?[HP]DTV|(?:HD)?CAM|B[rR]Rip|TS|(?:PPV )?WEB-?(DL)?(?: DVDRip)?|H[dD]Rip|DVDRip|DVDRiP|DVDRIP|CamRip|W[EB]B[rR]ip|[Bb]lu[Rr]ay|DvDScr|hdtv",
-    ),
-    (
-        "codec",
-        r"[Xx][Vv][Ii][Dd]|[Xx]264|[hH]\.?264/?|[Xx]265|[Hh]\.?265|[Hh][Ee][Vv][Cc]?",
-    ),
-    (
-        "audio",
-        r"MP3|DD5\.?1|Dual[\- ]Audio|LiNE|DTS|AAC(?:\.?2\.0)?|AC3(?:\.5\.1)?",
-    ),
-    ("group", r"(- ?([^ -]+(?:-=\{[^ -]+-?$)?))$"),
-    ("region", r"R\d"),
-    ("extended", r"EXTENDED"),
-    ("hardcoded", r"HC"),
-    ("proper", r"PROPER"),
-    ("repack", r"REPACK"),
-    ("container", r"MKV|AVI"),
-    ("widescreen", r"WS"),
-    ("three_d", r"3D"),
-    ("unrated", r"UNRATED"),
-    ("language", r"rus\.eng|US"),
-    ("garbage", r"1400Mb|3rd Nov|((Rip)) "),
-    ("imdb", r"tt\d{7}"),
-];
-
 lazy_static! {
-    static ref PATTERNS: HashMap<&'static str, Pattern> = {
-        let mut bucket = HashMap::new();
-
-        for (name, pattern) in &ALL_RAW_PATTERNS {
-            regex!(bucket, *name, pattern);
-        }
-
-        regex!(
-            bucket,
-            "year",
-            r"(?P<year>(1[89]|20)\d\d)",
-            false,
-            true,
-            true
-        );
-
-        regex!(
-            bucket,
-            "website",
-            r"^(\[ ?([^\]]+?) ?\]) ?",
-            true,
-            false,
-            false
-        );
-
-        bucket
-    };
+    pub static ref SEASON: Pattern = regex!(
+        r"(?i)s?(?P<short>\d+) ?[ex]|(?:season)(?:[^\d]|$)(?P<long>\d+)|s(?P<dash>\d+) - \d+|\.s(?P<collection>\d){1,2}\."
+    );
+    pub static ref EPISODE: Pattern = regex!(
+        r"(?i)(?:e|episode)[^.\d]?(?P<short>\d{1,3})|\d+x(?P<cross>\d+)|s\d+ - (?P<dash>\d+)"
+    );
+    pub static ref LAST_EPISODE: Pattern = regex!(r"(?i)(?:e)(?:\d+)(?:[- ]+)?(?:e(?P<last>\d+))+");
+    pub static ref FILE_EXTENSION: Pattern =
+        regex!(r"(?i)(?:\.)(?P<extension>[a-z]{2,4}(?:\d)?|m4v|3gp|h26[45])$");
+    pub static ref RESOLUTION: Pattern = regex!(r"((\d{3,4}p))[^M]");
+    pub static ref QUALITY: Pattern = regex!(
+        r"(?:PPV\.)?[HP]DTV|(?:HD)?CAM|B[rR]Rip|TS|(?:PPV )?WEB-?(DL)?(?: DVDRip)?|H[dD]Rip|DVDRip|DVDRiP|DVDRIP|CamRip|W[EB]B[rR]ip|[Bb]lu[Rr]ay|DvDScr|hdtv"
+    );
+    pub static ref CODEC: Pattern = regex!(r"(?i)xvid|x264|h\.?264/?|x265|h\.?265|hevc?");
+    pub static ref AUDIO: Pattern =
+        regex!(r"MP3|DD5\.?1|Dual[\- ]Audio|LiNE|DTS|AAC(?:\.?2\.0)?|AC3(?:\.5\.1)?");
+    pub static ref GROUP: Pattern = regex!(r"(- ?([^ -]+(?:-=\{[^ -]+-?$)?))$");
+    pub static ref COUNTRY: Pattern = regex!(
+        r"(?i)\W[(]?(?P<country>(?:U(?:A|G|K|M|S|Y|Z)|(?:A(?:D|E|F|G|I|L|M|N|O|R|S|T|Q|U|W|X|Z))|(?:B(?:A|B|D|E|F|G|H|I|J|L|M|N|O|R|S|T|V|W|Y|Z))|(?:C(?:A|C|D|F|G|H|I|K|L|M|N|O|R|U|V|X|Y|Z))|(?:D(?:E|J|K|M|O|Z))|
+(?:E(C|E|G|H|R|S|T))|(?:F(?:I|J|K|M|O|R))|(?:G(?:A|B|D|E|F|G|H|I|L|M|N|P|Q|R|S|T|U|W|Y))|(?:H(?:K|M|N|R|T|U))|(?:I(D|E|Q|L|M|N|O|R|S|T))|(?:J(?:E|M|O|P))|
+(?:K(E|G|H|I|M|N|P|R|W|Y|Z))|(?:L(?:A|B|C|I|K|R|S|T|U|V|Y))|(?:M(?:A|C|D|E|F|G|H|K|L|M|N|O|Q|P|R|S|T|U|V|W|X|Y|Z))|(?:N(?:A|C|E|F|G|I|L|O|P|R|U|Z))|(?:OM)|(?:P(?:A|E|F|G|H|K|L|M|N|R|S|T|W|Y))|(?:QA)|(?:R(?:E|O|S|U|W))|(?:S(?:A|B|C|D|E|G|H|I|J|K|L|M|N|O|R|T|V|Y|Z))|(?:T(?:C|D|F|G|H|J|K|L|M|N|O|R|T|V|W|Z))|(?:V(?:A|C|E|G|I|N|U))|(?:W(F|S))|(?:Y(E|T))|(?:Z(?:A|M|W))))[)]?($|\.S\d)"
+    );
+    pub static ref REGION: Pattern = regex!(r"R\d");
+    pub static ref EXTENDED: Pattern = regex!(r"EXTENDED");
+    pub static ref HARDCODED: Pattern = regex!(r"HC");
+    pub static ref PROPER: Pattern = regex!(r"PROPER");
+    pub static ref REPACK: Pattern = regex!(r"REPACK");
+    pub static ref CONTAINER: Pattern = regex!(r"MKV|AVI");
+    pub static ref WIDESCREEN: Pattern = regex!(r"WS");
+    pub static ref THREE_D: Pattern = regex!(r"3D");
+    pub static ref UNRATED: Pattern = regex!(r"UNRATED");
+    pub static ref LANGUAGE: Pattern = regex!(r"rus\.eng|US");
+    pub static ref GARBAGE: Pattern = regex!(r"1400Mb|3rd Nov|((Rip)) ");
+    pub static ref IMDB: Pattern = regex!(r"tt\d{7}");
+    pub static ref YEAR: Pattern = regex!(r"(?P<year>(1[89]|20)\d\d)", false, true, true);
+    pub static ref WEBSITE: Pattern = regex!(r"^(\[ ?([^\]]+?) ?\]) ?", true, false, false);
 }

@@ -21,7 +21,7 @@ mod audio;
 pub use audio::Audio;
 
 bitflags! {
-    #[derive(Default)]
+    #[derive(Debug, Clone, Copy, Default, Eq, PartialEq)]
     struct Flags: u32 {
         const EXTENDED = 0x01;
         const HARDCODED = 0x02;
